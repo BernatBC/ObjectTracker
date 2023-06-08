@@ -1,8 +1,8 @@
-videoNames = {'MotorcycleChase'; 'Boxing1'};
-for j=1:size(videoNames)
-    name = videoNames{j};
+videoNames =dir("TinyTLP\");
+for j=3:size(videoNames)
+    name = videoNames(j).name;
 
-
+   
     path1 = strcat('./TinyTLP/', name);
     path11 = strcat(path1,'/groundtruth_rect.txt');
     path2 = strcat(path1,'/img/*.jpg');
@@ -10,7 +10,7 @@ for j=1:size(videoNames)
     Idir = dir(path2);
 
     for i=1:5
-
+    
         filename = horzcat(Idir(i).folder,'/',Idir(i*10).name);
         I = imread(filename);
         imshow(I);
@@ -19,9 +19,11 @@ for j=1:size(videoNames)
         nom = strcat(name,'_');
         nom1 = strcat(nom,string(i));
         nom2 = strcat(nom1, '.jpg');
-        imwrite(I2,nom2);
+        path = strcat('./network/train_images/objecte/',nom2);
+        imwrite(I2,path);
     end
 end
+
 
 videoNames = {'MotorcycleChase';'Boxing1'};
 nFrames = 100;
