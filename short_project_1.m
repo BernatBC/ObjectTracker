@@ -1,3 +1,11 @@
+videoNames = {'MotorcycleChase';'Boxing1'};
+nFrames = 100;
+OverlappingRates = zeros([size(videoNames), nFrames]);
+for i=1:size(videoNames)
+    name = videoNames{i};
+    OverlappingRates(i) = strategy(name,nFrames);
+end
+%%
 % Versió prova per defecte
 
 % myTracker,  codi inicial del short project
@@ -180,33 +188,6 @@ for i=1:size(videoNames)
     kalman(name);
 end
 
-
-%%
-videoNames = {'MotorcycleChase'; 'Boxing1'};
-for j=1:size(videoNames)
-    name = videoNames{j};
-
-   
-    path1 = strcat('./TinyTLP/', name);
-    path11 = strcat(path1,'/groundtruth_rect.txt');
-    path2 = strcat(path1,'/img/*.jpg');
-    BB = importdata(path11);
-    Idir = dir(path2);
-
-    for i=1:5
-    
-        filename = horzcat(Idir(i).folder,'/',Idir(i*10).name);
-        I = imread(filename);
-        imshow(I);
-        B1 = BB(i*10,2:5);
-        I2 = imcrop(I,B1);
-        nom = strcat(name,'_');
-        nom1 = strcat(nom,string(i));
-        nom2 = strcat(nom1, '.jpg');
-        imwrite(I2,nom2);
-    end
-end
-
 % Funcions
 
 function [pos] = busca_centre(vector,long,up)
@@ -299,10 +280,43 @@ function [] = kalman(nom_fitxer)
         end
     end
 end
+
+%%
+function ORatio = strategy(videoName, nFrames)
+    close all
+    hold off
+
+    BB = importdata('./TinyTLP/'+ videoName + '/groundtruth_rect.txt');
+    Idir = dir('./TinyTLP/' + videoName + '/img/*.jpg');
+
+    figure
+    hold on
+
+    ORatio = zeros(nFrames);
+
+    for i=1:nFrames
+        filename = horzcat(Idir(i).folder,'/',Idir(i).name);
+        I = imread(filename);
+
+        % Codi Obtenir centre caixa a variable centralPoint(x,y)
+
+        % Càlcul de Bounding Box i tractament de resultat
+        [width, height] = BB(i,4:5);
+        [minx, miny] = topLeftCoordinate(centralPoint, width, height);
+        ORatio(i) = bboxOverlapRatio([minx,miny,width,height],BB(i,2:5));
+        imshow(I)
+        rectangle('Position',[predP(1),predP(3),predW(1),predW(3)],'EdgeColor','red');
+        rectangle('Position',BB(i,2:5),'EdgeColor','yellow');
+        drawnow
+    end
+end
+
+function [minx, miny] = topLeftCoordinate(centralPoint, width, height)
+    minx = centralPoint(1) - width/2;
+    miny = centralPoint(2) - height/2; 
+end
 %% 
 % Comentari: Hue no funciona, hem provat el video Hideway amb el kalman original 
 % però canviant el rgb2gray a rgb2hsv ( i agafant la component hue). No funciona 
 % ja que es perd molta informació de l'imatge: (comparar captura original, gray 
 % i hsv).
-% 
-%
