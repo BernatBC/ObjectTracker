@@ -1,3 +1,28 @@
+videoNames = {'MotorcycleChase'; 'Boxing1'};
+for j=1:size(videoNames)
+    name = videoNames{j};
+
+
+    path1 = strcat('./TinyTLP/', name);
+    path11 = strcat(path1,'/groundtruth_rect.txt');
+    path2 = strcat(path1,'/img/*.jpg');
+    BB = importdata(path11);
+    Idir = dir(path2);
+
+    for i=1:5
+
+        filename = horzcat(Idir(i).folder,'/',Idir(i*10).name);
+        I = imread(filename);
+        imshow(I);
+        B1 = BB(i*10,2:5);
+        I2 = imcrop(I,B1);
+        nom = strcat(name,'_');
+        nom1 = strcat(nom,string(i));
+        nom2 = strcat(nom1, '.jpg');
+        imwrite(I2,nom2);
+    end
+end
+
 videoNames = {'MotorcycleChase';'Boxing1'};
 nFrames = 100;
 OverlappingRates = zeros([size(videoNames), nFrames]);
