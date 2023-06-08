@@ -1,9 +1,11 @@
 videoNames = {'MotorcycleChase';'Boxing1'};
 nFrames = 100;
+OverlappingRates = zeros([size(videoNames), nFrames]);
 for i=1:size(videoNames)
     name = videoNames{i};
-    strategy(name,nFrames);
+    OverlappingRates(i) = strategy(name,nFrames);
 end
+% Faltarà funció per fer les comparacions (average, median, percentils, gràfics, ...)
 %%
 % myTracker,  codi inicial del short project
 
