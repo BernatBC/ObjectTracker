@@ -205,14 +205,6 @@ for i = 1:nf
      end
     
 end
-% Funcio més d'una imatge
-
-videoNames = {'MotorcycleChase'; 'Boxing1'};
-for i=1:size(videoNames)
-    name = videoNames{i};
-    kalman(name);
-end
-
 % Funcions
 
 function [pos] = busca_centre(vector,long,up)
