@@ -23,6 +23,33 @@ for j=3:size(videoNames)
         imwrite(I2,path);
     end
 end
+%%
+
+videoNames =dir("TinyTLP\");
+for j=3:size(videoNames)
+    name = videoNames(j).name;
+
+    mkdir("network\test_images\",name);
+    path1 = strcat('./TinyTLP/', name);
+    path2 = strcat(path1,'/img/*.jpg');
+    Idir = dir(path2);
+
+    for i=1:50
+    
+        filename = horzcat(Idir(i).folder,'/',Idir(i).name);
+        I = imread(filename);
+        %imshow(I);
+        %B1 = BB(i,2:5);
+        %I2 = imcrop(I,B1);
+        nom = strcat(name,'_');
+        nom1 = strcat(nom,string(i));
+        nom2 = strcat(nom1, '.jpg');
+        path = strcat('./network/test_images/', name);
+        path3 = strcat(path, '/',nom2);
+        imwrite(I,path3);
+    end
+end
+%%
 
 
 videoNames = {'MotorcycleChase';'Boxing1'};
