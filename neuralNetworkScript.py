@@ -105,24 +105,29 @@ def runVideo(videoname, model, method):
             [coords] = r.xyxy.tolist()
             #print(coords)
             #print([xmin, ymin, width, height, isLost])
-            points.append(yoloBoxToTopLeft(coords, width, height))
+            points.append((r.conf.item(), yoloBoxToTopLeft(coords, width, height)))
             #print('---')
+        
+        # Càlcul del overlapping del frame segons oclusió i multiple selecció
         if isLost:
             if len(points):
                 overlappingRatios.append(0)
             else:
                 overlappingRatios.append(1)
-        elif not len(points):
-            overlappingRatios.append(0)
-        elif len(points) > 1:
-            # seleccionem caixa de manera aleatoria
-            seleccionat = random.randrange(len(points))
-            (x,y) = points[seleccionat]
-            overlappingRatios.append(overlapRatio(xmin, ymin, x, y, width, height))
-            # també podem agafar el de més confiança
         else:
-            (x,y) = points[0]
-            overlappingRatios.append(overlapRatio(xmin, ymin, x, y, width, height))
+            # seleccionem el de més confiança
+            max_c = 0
+            max_p = (0,0)
+            for (conf, point) in points:
+                if conf > max_c:
+                    max_c = conf
+                    max_p = point
+            
+            (x,y) = max_p
+            if max_c == 0:
+                overlappingRatios.append(0)
+            else:
+                overlappingRatios.append(overlapRatio(xmin, ymin, x, y, width, height))
 
         i += 1
     
@@ -138,7 +143,7 @@ model = YOLO("yolov8m.pt")
 if method == '1':
     model = YOLO("best.pt")
 
-#runVideo(videoname, model, method)
+runVideo(videoname, model, method)
 
 #per a fer-los tots
 #for v in objectNames.keys():
