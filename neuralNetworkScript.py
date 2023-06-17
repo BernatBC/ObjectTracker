@@ -77,6 +77,27 @@ def overlapRatio(xmin1, ymin1, xmin2, ymin2, width, height):
     area_unio = 2*width*height - area_interseccio
     return area_interseccio/area_unio
 
+def selectOverlapRatio(points, xmin, ymin, width, height, isLost):
+    # Càlcul del overlapping del frame segons oclusió i multiple selecció
+    if isLost:
+        if len(points):
+            return 0
+        else:
+            return 1
+    
+    if not len(points):
+        return 0
+        
+    max_c = 0
+    max_p = (0,0)
+    for (conf, point) in points:
+        if conf > max_c:
+            max_c = conf
+            max_p = point
+            
+    (x,y) = max_p
+    return overlapRatio(xmin, ymin, x, y, width, height)
+
 def runVideo(videoname, model, method):
     # Llegir fitxer dades
     with open('TinyTLP/' + videoname + '/groundtruth_rect.txt', 'r') as f:
@@ -104,26 +125,7 @@ def runVideo(videoname, model, method):
             points.append((r.conf.item(), yoloBoxToTopLeft(coords, width, height)))
             #print('---')
         
-        # Càlcul del overlapping del frame segons oclusió i multiple selecció
-        if isLost:
-            if len(points):
-                overlappingRatios.append(0)
-            else:
-                overlappingRatios.append(1)
-        else:
-            # seleccionem el de més confiança
-            max_c = 0
-            max_p = (0,0)
-            for (conf, point) in points:
-                if conf > max_c:
-                    max_c = conf
-                    max_p = point
-            
-            (x,y) = max_p
-            if max_c == 0:
-                overlappingRatios.append(0)
-            else:
-                overlappingRatios.append(overlapRatio(xmin, ymin, x, y, width, height))
+        overlappingRatios.append(selectOverlapRatio(points, xmin, ymin, width, height, isLost))
 
         i += 1
     
