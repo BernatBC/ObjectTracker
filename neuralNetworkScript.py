@@ -61,15 +61,11 @@ def yoloBoxToTopLeft(coordinates, width, height):
     miny = cy - height/2
     return (minx,miny)
 
-def overlapRatio(x1, y1, x2, y2, width, height):
-    xmin1 = x1
-    xmax1 = x1 + width
-    xmin2 = x2
-    xmax2 = x2 + width
-    ymin1 = y1
-    ymax1 = y1 + height
-    ymin2 = y2
-    ymax2 = y2 + height
+def overlapRatio(xmin1, ymin1, xmin2, ymin2, width, height):
+    xmax1 = xmin1 + width
+    xmax2 = xmin2 + width
+    ymax1 = ymin1 + height
+    ymax2 = ymin2 + height
 
     xmin = min(xmax1,xmax2) - max(xmin1,xmin2)
     if xmin < 0:
