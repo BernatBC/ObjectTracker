@@ -37,7 +37,7 @@ function [ORatio] = kalman(nom_fitxer, nIt)
     im_obj = im_obje(:,:,1);
     imshow(im_obj);
     
-    ORatio = zeros(1,100);
+    ORatio = zeros(1,nIt);
 
     for i = 1:nIt
         filename = horzcat(Idir(i).folder,'/',Idir(i).name);
