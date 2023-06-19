@@ -1,6 +1,5 @@
 from ultralytics import YOLO
 import sys
-import random
 
 objectNames = {
     'Alladin':'person',
@@ -98,7 +97,7 @@ def selectOverlapRatio(points, xmin, ymin, width, height, isLost):
     (x,y) = max_p
     return overlapRatio(xmin, ymin, x, y, width, height)
 
-def runVideo(videoname, model, method):
+def runVideo(videoname, model):
     # Llegir fitxer dades
     with open('TinyTLP/' + videoname + '/groundtruth_rect.txt', 'r') as f:
         BBS = [[int(num) for num in line.split(',')] for line in f]
@@ -111,37 +110,29 @@ def runVideo(videoname, model, method):
         [_,xmin,ymin,width,height,isLost] = BBS[i]
         points = []
         for r in result.boxes:
-            if method == '0':
-                if result.names[r.cls.item()] != objectNames[videoname]:
-                    continue
-            else:
-                if r.cls.item() != 0:
-                    continue
+            if result.names[r.cls.item()] != objectNames[videoname]:
+                continue
             #print(result.names[r.cls.item()])
             #print(r.conf.item())
             [coords] = r.xyxy.tolist()
-            print(coords)
-            print([xmin, ymin, width, height, isLost])
+            #print(coords)
+            #print([xmin, ymin, width, height, isLost])
             points.append((r.conf.item(), yoloBoxToTopLeft(coords, width, height)))
-            print('---')
+            #print('---')
         
         overlappingRatios.append(selectOverlapRatio(points, xmin, ymin, width, height, isLost))
 
         i += 1
     
-    with open(videoname + str(method) + '.txt', 'w') as k:
+    with open(videoname + 'N.txt', 'w') as k:
         for o in overlappingRatios:
             k.write(str(o) + '\n')
 
-method = sys.argv[1]
-videoname = sys.argv[2]
+videoname = sys.argv[1]
 
 model = YOLO("yolov8m.pt")
 
-if method == '1':
-    model = YOLO("best.pt")
-
-runVideo(videoname, model, method)
+runVideo(videoname, model)
 
 #per a fer-los tots
 #for v in objectNames.keys():
