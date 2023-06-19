@@ -50,7 +50,7 @@ objectNames = {
     'Puppies2':'Dog',
     'Rope':'Person',
     'Sam':'Person',
-    'Violonist':'Person',
+    'Violinist':'Person',
     'ZebraFish':'Fish'
 }
 
