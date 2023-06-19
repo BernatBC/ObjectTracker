@@ -120,10 +120,10 @@ def runVideo(videoname, model, method):
             #print(result.names[r.cls.item()])
             #print(r.conf.item())
             [coords] = r.xyxy.tolist()
-            #print(coords)
-            #print([xmin, ymin, width, height, isLost])
+            print(coords)
+            print([xmin, ymin, width, height, isLost])
             points.append((r.conf.item(), yoloBoxToTopLeft(coords, width, height)))
-            #print('---')
+            print('---')
         
         overlappingRatios.append(selectOverlapRatio(points, xmin, ymin, width, height, isLost))
 
