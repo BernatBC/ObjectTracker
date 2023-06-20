@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import sys
 
+# Diccionari clau: nom-video, valor: objecte a detectar
 objectNames = {
     'Alladin':'person',
     #'Aquarium1':'person',
@@ -9,7 +10,7 @@ objectNames = {
     'Badminton2':'person',
     'Basketball':'person',
     'Bharatanatyam':'person',
-    'Bike':'person',                # potser bike dona millor resultat
+    'Bike':'person',
     'Billiards1':'sports ball',
     'Billiards2':'sports ball',
     'Boat':'boat',
@@ -19,12 +20,12 @@ objectNames = {
     'BreakfastClub':'person',
     'CarChase1':'car',
     'CarChase2':'car',
-    'CarChase3':'car',              # potser truck dona millor resultat
+    'CarChase3':'car',
     'Dashcam':'car',
     'DriftCar1':'car',
     'DriftCar2':'car',
     'Drone1':'person',
-    'Drone2':'person',              # potser bike dona millor resultat
+    'Drone2':'person',
     'Drone3':'person',
     'Elephants':'elephant',
     'Helicopter':'airplane',
@@ -39,9 +40,9 @@ objectNames = {
     'KinBall1':'sports ball',
     'KinBall2':'sports ball',
     'KinBall3':'sports ball',
-    'Lion':'cow',                   # potser horse dona millor resultat
+    'Lion':'cow',
     'Mohiniyattam':'person',
-    'MotorcycleChase':'motorcycle', # potser person dona millor resultat
+    'MotorcycleChase':'motorcycle',
     'Parakeet':'bird',
     'PolarBear1':'bear',
     'PolarBear2':'bear',
@@ -54,12 +55,14 @@ objectNames = {
     #'ZebraFish':'person'
 }
 
+# Retorna cantonada de dalt a l'esquerra de la caixa
 def yoloBoxToTopLeft(coordinates, width, height):
     (cx, cy) = ((coordinates[0]+coordinates[2])/2,(coordinates[1]+coordinates[3])/2)
     minx = cx - width/2
     miny = cy - height/2
     return (minx,miny)
 
+# Retorna Overlapping Ratio
 def overlapRatio(xmin1, ymin1, xmin2, ymin2, width, height):
     xmax1 = xmin1 + width
     xmax2 = xmin2 + width
@@ -76,8 +79,8 @@ def overlapRatio(xmin1, ymin1, xmin2, ymin2, width, height):
     area_unio = 2*width*height - area_interseccio
     return area_interseccio/area_unio
 
+# Càlcul del overlapping del frame segons oclusió i multiple selecció
 def selectOverlapRatio(points, xmin, ymin, width, height, isLost):
-    # Càlcul del overlapping del frame segons oclusió i multiple selecció
     if isLost:
         if len(points):
             return 0
@@ -86,7 +89,8 @@ def selectOverlapRatio(points, xmin, ymin, width, height, isLost):
     
     if not len(points):
         return 0
-        
+    
+    # Escollir caixa amb millor confidence level
     max_c = 0
     max_p = (0,0)
     for (conf, point) in points:
@@ -105,35 +109,35 @@ def runVideo(videoname, model):
     results = model.predict(source="TinyTLP/" + videoname + "/img")
     overlappingRatios = []
 
+    # Càlcul millor caixa
     i = 0
     for result in results:
         [_,xmin,ymin,width,height,isLost] = BBS[i]
         points = []
         for r in result.boxes:
+            # Descartar objectes 
             if result.names[r.cls.item()] != objectNames[videoname]:
                 continue
-            #print(result.names[r.cls.item()])
-            #print(r.conf.item())
             [coords] = r.xyxy.tolist()
-            #print(coords)
-            #print([xmin, ymin, width, height, isLost])
+            # Afegir punt com a possible candidat
             points.append((r.conf.item(), yoloBoxToTopLeft(coords, width, height)))
-            #print('---')
-        
-        overlappingRatios.append(selectOverlapRatio(points, xmin, ymin, width, height, isLost))
 
+        # Afegir overlapping ratio de la millor caixa
+        overlappingRatios.append(selectOverlapRatio(points, xmin, ymin, width, height, isLost))
         i += 1
     
-    with open(videoname + 'N.txt', 'w') as k:
+    # Escriptura de valors al fitxer
+    with open(videoname + 'Internet.txt', 'w') as k:
         for o in overlappingRatios:
             k.write(str(o) + '\n')
 
-videoname = sys.argv[1]
 
 model = YOLO("yolov8m.pt")
 
-runVideo(videoname, model)
+#per a un sol video rebut com a paràmetre
+#videoname = sys.argv[1]
+#runVideo(videoname, model)
 
 #per a fer-los tots
-#for v in objectNames.keys():
-#    runVideo(v, model, method)
+for v in objectNames.keys():
+    runVideo(v, model, method)
